@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   Card,
@@ -10,22 +9,64 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { useForm } from "react-hook-form";
+import { SignupActions } from "@/components/signup/utils";
+import FormField from "@/components/form/FormField";
+
+interface SignupForm {
+  first_name: string;
+  last_name: string;
+  middle_name: string;
+  username: string;
+  email: string;
+  age: number;
+  password: string;
+  confirm_password: string;
+}
 
 export default function Signup() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const { registerUser } = SignupActions();
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<SignupForm>();
+
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // Simulate API call for hackathon demo
-    console.log("Signup:", { name, email, password });
-    // Redirect to dashboard after "signup" (replace with real API later)
+  const onSubmit = async (data: SignupForm) => {
+    console.log(data);
+    if (data.password !== data.password) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    try {
+      const response = await registerUser(
+        data.first_name,
+        data.last_name,
+        data.middle_name,
+        data.username,
+        data.email,
+        data.age,
+        data.password,
+        data.confirm_password
+      ).res();
+
+      console.log(response);
+
+      if (response.ok) {
+        alert("Account created successfully. Please log in.");
+        return;
+      }
+    } catch (error) {
+      alert("An error occurred. Please try again later.");
+      return;
+    }
+
     router.push("/dashboard");
   };
 
@@ -41,72 +82,146 @@ export default function Signup() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Name Field */}
-            <div className="space-y-2">
-              <Label htmlFor="name" className="text-dark font-medium">
-                Name
-              </Label>
-              <Input
-                id="name"
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Enter your name"
-                className="border-dark/20 focus:ring-accent focus:border-accent"
-                required
-              />
-            </div>
+          <form className="space-y-6">
+            <FormField
+              id="username"
+              label="Username"
+              placeholder="Enter your username"
+              register={register("username", {
+                required: "Username is required",
+                minLength: {
+                  value: 3,
+                  message: "Username must be at least 3 characters",
+                },
+              })}
+              required
+              error={errors.username?.message}
+            />
 
-            {/* Email Field */}
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-dark font-medium">
-                Email
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                className="border-dark/20 focus:ring-accent focus:border-accent"
-                required
-              />
-            </div>
+            <FormField
+              id="first_name"
+              label="First Name"
+              placeholder="Enter your first name"
+              register={register("first_name", {
+                required: "First name is required",
+                minLength: {
+                  value: 3,
+                  message: "First name must be at least 3 characters",
+                },
+              })}
+              required
+            />
 
-            {/* Password Field */}
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-dark font-medium">
-                Password
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Create a password"
-                className="border-dark/20 focus:ring-accent focus:border-accent"
-                required
-              />
-            </div>
+            <FormField
+              id="middle_name"
+              label="Middle Name"
+              placeholder="Enter your middle name"
+              register={register("middle_name", {
+                required: "Middle name is required",
+                minLength: {
+                  value: 3,
+                  message: "Middle name must be at least 3 characters",
+                },
+              })}
+              required
+            />
 
-            {/* Submit Button */}
+            <FormField
+              id="last_name"
+              label="Last Name"
+              placeholder="Enter your last name"
+              register={register("last_name", {
+                required: "Last name is required",
+                minLength: {
+                  value: 3,
+                  message: "Last name must be at least 3 characters",
+                },
+              })}
+              required
+            />
+
+            <FormField
+              id="email"
+              label="Email"
+              type="email"
+              placeholder="Enter your email"
+              register={register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
+                  message: "Invalid email address",
+                },
+              })}
+              required
+              error={errors.email?.message}
+            />
+
+            <FormField
+              id="age"
+              label="Age"
+              type="number"
+              placeholder="Enter your age"
+              register={register("age", {
+                required: "Age is required",
+                min: {
+                  value: 18,
+                  message: "You must be at least 18 years old",
+                },
+                max: {
+                  value: 70,
+                  message: "You must be at most 70 years old",
+                },
+              })}
+              required
+              error={errors.age?.message}
+            />
+
+            <FormField
+              id="password"
+              label="Password"
+              type="password"
+              placeholder="Enter your password"
+              register={register("password", {
+                required: "Password is required",
+                minLength: {
+                  value: 8,
+                  message: "Password must be at least 8 characters",
+                },
+              })}
+              required
+            />
+
+            <FormField
+              id="confirm_password"
+              label="Confirm Password"
+              type="password"
+              placeholder="Confirm your password"
+              register={register("confirm_password", {
+                required: "Password confirmation is required",
+                minLength: {
+                  value: 8,
+                  message:
+                    "Password confirmation must be at least 8 characters",
+                },
+              })}
+              required
+            />
+
             <Button
               type="submit"
               className="w-full bg-accent text-white hover:bg-accent/90 transition-all"
+              onClick={handleSubmit(onSubmit)}
             >
               Sign Up
             </Button>
           </form>
         </CardContent>
         <CardFooter className="flex flex-col items-center gap-4">
-          {/* Gamification Hint */}
           <p className="text-sm text-dark/60">
             Sign up now and earn{" "}
-            <span className="text-accent font-bold">10 points</span> to kickstart
-            your journey!
+            <span className="text-accent font-bold">10 points</span> to
+            kickstart your journey!
           </p>
-          {/* Login Link */}
           <p className="text-sm text-dark">
             Already have an account?{" "}
             <Link href="/login" className="text-accent hover:underline">

@@ -14,6 +14,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { SignupActions } from "@/components/signup/utils";
 import FormField from "@/components/form/FormField";
+import { toast } from "sonner";
 
 interface SignupForm {
   first_name: string;
@@ -39,7 +40,9 @@ export default function Signup() {
 
   const onSubmit = async (data: SignupForm) => {
     if (data.password !== data.password) {
-      alert("Passwords do not match");
+      toast.error("Passwords do not match", {
+        duration: 5000,
+      });
       return;
     }
 
@@ -56,11 +59,19 @@ export default function Signup() {
       ).res();
 
       if (response.ok) {
-        alert("Account created successfully. Please log in.");
+        toast.success(
+          "Account created successfully. You will be redirected to the dashboard.",
+          {
+            duration: 5000,
+          }
+        );
         return;
       }
     } catch (error) {
       console.error(error);
+      toast.error("An error occurred. Please try again later.", {
+        duration: 5000,
+      });
       return;
     }
 
@@ -107,6 +118,7 @@ export default function Signup() {
                 },
               })}
               required
+              error={errors.first_name?.message}
             />
 
             <FormField
@@ -121,6 +133,7 @@ export default function Signup() {
                 },
               })}
               required
+              error={errors.middle_name?.message}
             />
 
             <FormField
@@ -135,6 +148,7 @@ export default function Signup() {
                 },
               })}
               required
+              error={errors.last_name?.message}
             />
 
             <FormField
@@ -186,6 +200,7 @@ export default function Signup() {
                 },
               })}
               required
+              error={errors.password?.message}
             />
 
             <FormField
@@ -202,6 +217,7 @@ export default function Signup() {
                 },
               })}
               required
+              error={errors.confirm_password?.message}
             />
 
             <Button

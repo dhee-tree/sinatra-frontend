@@ -38,7 +38,6 @@ export default function Signup() {
   const router = useRouter();
 
   const onSubmit = async (data: SignupForm) => {
-    console.log(data);
     if (data.password !== data.password) {
       alert("Passwords do not match");
       return;
@@ -56,14 +55,12 @@ export default function Signup() {
         data.confirm_password
       ).res();
 
-      console.log(response);
-
       if (response.ok) {
         alert("Account created successfully. Please log in.");
         return;
       }
     } catch (error) {
-      alert("An error occurred. Please try again later.");
+      console.error(error);
       return;
     }
 

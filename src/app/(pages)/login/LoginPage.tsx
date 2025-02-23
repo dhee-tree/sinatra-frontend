@@ -33,12 +33,18 @@ export default function Login() {
 
   const onSubmit = async (data: LoginForm) => {
     try {
-      login(data.email, data.password).json((json) => {
+      const response = await login(data.email, data.password).res();
+
+      if (response.ok) {
+        const json = await response.json();
         storeToken(json.access, "access");
         storeToken(json.refresh, "refresh");
 
         router.push("dashboard");
-      });
+        toast.success("Logged in successfully", {
+          duration: 5000,
+        });
+      }
     } catch (error) {
       console.error(error);
       toast.error("Invalid credentials", {

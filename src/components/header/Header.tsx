@@ -19,7 +19,8 @@ export default function Header() {
   }, []);
 
   const handleLogout = () => {
-    document.cookie = "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+    document.cookie =
+      "accessToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
     setIsLoggedIn(false);
     toast.success("Logged out successfully", { duration: 5000 });
     router.push("/login");

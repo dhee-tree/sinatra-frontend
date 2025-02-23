@@ -20,6 +20,7 @@ import {
 import FormField from "@/components/form/FormField";
 import { toast } from "sonner";
 import { OrganisationActions } from "@/components/organisation/utils";
+import { mutate } from "swr";
 
 const { createOrganisation } = OrganisationActions();
 
@@ -85,6 +86,7 @@ export default function CreateOrganisationModal({
         });
         setIsOpen(false);
         reset();
+        mutate("api/organisations/my");
       } else {
         await request.json();
         toast.error("Failed to create organisation.", { duration: 5000 });

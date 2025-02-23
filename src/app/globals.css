@@ -68,3 +68,40 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Pebble Animation */
+.pebble {
+  opacity: 0;
+  animation: fadeInBounce 0.5s ease-in forwards;
+}
+
+.pebble-1 { animation-delay: 0.2s; }
+.pebble-2 { animation-delay: 0.4s; }
+.pebble-3 { animation-delay: 0.6s; }
+.pebble-4 { animation-delay: 0.8s; }
+.pebble-5 { animation-delay: 1.0s; }
+
+@keyframes fadeInBounce {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Optional: Gradient Background Animation */
+.bg-gradient-to-r {
+  animation: gradientShift 10s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { toast } from "sonner";
+import CreateOrganisationModal from "@/components/organisation/CreateOrganisationModal";
 
 const user = {
   name: "Jane Doe",
@@ -30,12 +30,8 @@ const user = {
   ],
 };
 
-export default function DashboardPage() {
-  const handleCreateOrg = () => {
-    toast.success("Organization creation started! (Mock action)", {
-      duration: 5000,
-    });
-  };
+export default function Dashboard() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-neutral pt-24 pb-12 px-6">
@@ -44,26 +40,11 @@ export default function DashboardPage() {
           <h1 className="text-3xl font-extrabold text-dark">
             Welcome, {user.name}!
           </h1>
-          <Button
-            onClick={handleCreateOrg}
-            className="bg-accent text-white hover:bg-accent/90 transition-all flex items-center gap-2"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M5 12h14" />
-              <path d="M12 5v14" />
-            </svg>
-            Create Organization
-          </Button>
+
+          <CreateOrganisationModal
+            isOpen={isDialogOpen}
+            setIsOpen={setIsDialogOpen}
+          />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

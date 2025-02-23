@@ -33,7 +33,7 @@ export default function Login() {
 
   const onSubmit = async (data: LoginForm) => {
     try {
-      const response = await login(data.email, data.password).json((json) => {
+      login(data.email, data.password).json((json) => {
         storeToken(json.access, "access");
         storeToken(json.refresh, "refresh");
 

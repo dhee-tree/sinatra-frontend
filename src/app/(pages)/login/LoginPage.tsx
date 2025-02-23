@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
 import {
   Card,
   CardContent,
@@ -10,22 +10,41 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import Link from "next/link";
+import { LoginActions } from "@/components/login/utils";
+import FormField from "@/components/form/FormField";
+import { toast } from "sonner";
+
+interface LoginForm {
+  email: string;
+  password: string;
+}
 
 export default function Login() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginForm>();
+
+  const { login, storeToken } = LoginActions();
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    // Simulate API call for hackathon demo
-    console.log("Login:", { email, password });
-    // Redirect to dashboard after "login" (replace with real API later)
-    router.push("/");
+  const onSubmit = async (data: LoginForm) => {
+    try {
+      const response = await login(data.email, data.password).json((json) => {
+        storeToken(json.access, "access");
+        storeToken(json.refresh, "refresh");
+
+        router.push("dashboard");
+      });
+    } catch (error) {
+      console.error(error);
+      toast.error("Invalid credentials", {
+        duration: 5000,
+      });
+    }
   };
 
   return (
@@ -40,58 +59,55 @@ export default function Login() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Email Field */}
-            <div className="space-y-2">
-              <Label htmlFor="email" className="text-dark font-medium">
-                Email
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Enter your email"
-                className="border-dark/20 focus:ring-accent focus:border-accent"
-                required
-              />
-            </div>
+          <form className="space-y-6">
+            <FormField
+              id="email"
+              label="Email"
+              type="email"
+              placeholder="Enter your email"
+              register={register("email", {
+                required: "Email is required",
+                pattern: {
+                  value: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
+                  message: "Invalid email address",
+                },
+              })}
+              required
+              error={errors.email?.message}
+            />
 
-            {/* Password Field */}
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-dark font-medium">
-                Password
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
-                className="border-dark/20 focus:ring-accent focus:border-accent"
-                required
-              />
-            </div>
-
-            {/* Submit Button */}
+            <FormField
+              id="password"
+              label="Password"
+              type="password"
+              placeholder="Enter your password"
+              register={register("password", {
+                required: "Password is required",
+                minLength: {
+                  value: 8,
+                  message: "Password must be at least 8 characters",
+                },
+              })}
+              required
+              error={errors.password?.message}
+            />
             <Button
               type="submit"
               className="w-full bg-accent text-white hover:bg-accent/90 transition-all"
+              onClick={handleSubmit(onSubmit)}
             >
               Log In
             </Button>
           </form>
         </CardContent>
         <CardFooter className="flex flex-col items-center gap-4">
-          {/* Gamification Hint */}
           <p className="text-sm text-dark/60">
             Log in to check your{" "}
             <span className="text-accent font-bold">points</span> and upcoming
             events!
           </p>
-          {/* Signup Link */}
           <p className="text-sm text-dark">
-            Don’t have an account?{" "}
+            Don&apos;t have an account?{" "}
             <Link href="/signup" className="text-accent hover:underline">
               Sign up
             </Link>

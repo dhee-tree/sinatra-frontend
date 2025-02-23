@@ -1,10 +1,5 @@
 import { api } from "@/components/signup/utils";
-
-const getAccessToken = () => {
-  const cookieStore = document.cookie;
-  const tokenMatch = cookieStore.match(/accessToken=([^;]+)/);
-  return tokenMatch ? tokenMatch[1] : null;
-};
+import { LoginActions } from "@/components/login/utils";
 
 const createOrganisation = (
   name: string,
@@ -17,6 +12,7 @@ const createOrganisation = (
   address_line_city: string,
   address_line_postcode: string
 ) => {
+  const { getAccessToken } = LoginActions();
   const token = getAccessToken();
   if (!token) {
     console.warn("No access token found in cookies");

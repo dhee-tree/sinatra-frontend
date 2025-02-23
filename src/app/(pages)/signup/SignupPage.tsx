@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { SignupActions } from "@/components/signup/utils";
+import { LoginActions } from "@/components/login/utils";
 import FormField from "@/components/form/FormField";
 import { toast } from "sonner";
 
@@ -29,14 +30,14 @@ interface SignupForm {
 
 export default function Signup() {
   const { registerUser } = SignupActions();
+  const router = useRouter();
+  const { storeToken } = LoginActions();
 
   const {
     handleSubmit,
     register,
     formState: { errors },
   } = useForm<SignupForm>();
-
-  const router = useRouter();
 
   const onSubmit = async (data: SignupForm) => {
     if (data.password !== data.password) {
@@ -59,13 +60,21 @@ export default function Signup() {
       ).res();
 
       if (response.ok) {
+        const json = await response.json();
+        storeToken(json.access, "access");
+        storeToken(json.refresh, "refresh");
+
+        router.push("dashboard");
         toast.success(
-          "Account created successfully. You will be redirected to the dashboard.",
+          "Account created successfully. Redirecting to dashboard...",
           {
             duration: 5000,
           }
         );
-        return;
+      } else {
+        toast.error("Invalid credentials", {
+          duration: 5000,
+        });
       }
     } catch (error) {
       console.error(error);
@@ -126,7 +135,6 @@ export default function Signup() {
               label="Middle Name"
               placeholder="Enter your middle name"
               register={register("middle_name", {
-                required: "Middle name is required",
                 minLength: {
                   value: 3,
                   message: "Middle name must be at least 3 characters",

@@ -120,14 +120,14 @@ export default function Dashboard() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <p className="text-4xl font-bold text-accent">
-                    {userData?.points}
+                    {70} <span className="text-xl">pts</span>
                   </p>
                   <div>
                     <p className="text-sm text-dark/80 mb-2">
                       Progress to Next Level
                     </p>
                     <Progress
-                      value={userData?.points}
+                      value={70}
                       className="h-2 bg-dark/20"
                     />
                   </div>

@@ -16,6 +16,7 @@ import MoonLoader from "react-spinners/MoonLoader";
 import UserOrganisations from "@/components/organisation/UserOrganisations";
 import ManageSkillsModal from "@/components/skills/ManageSkillsModal";
 import ViewAllBadgesLink from "@/components/dashboard/ViewAllBadgesLink";
+import AllTasks from "@/components/organisation/AllTasks";
 
 type userData = {
   first_name: string;
@@ -221,21 +222,7 @@ export default function Dashboard() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
               <UserOrganisations />
-              <Card className="bg-white shadow-xl">
-                <CardHeader>
-                  <CardTitle className="text-xl font-bold text-dark">
-                    All Tasks
-                  </CardTitle>
-                  <CardDescription className="text-dark/70">
-                    Pick a task to contribute
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-dark/80">
-                    No tasks available at the moment.
-                  </p>
-                </CardContent>
-              </Card>
+              <AllTasks />
             </div>
           </>
         )}

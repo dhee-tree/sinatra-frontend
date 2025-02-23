@@ -8,6 +8,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { toast } from "sonner";
+import { OrganisationActions } from "./utils";
+import { useForm } from "react-hook-form";
+import FormField from "@/components/form/FormField";
+import { mutate } from "swr";
 
 type OrganisationFormData = {
   name: string;
@@ -21,6 +28,11 @@ type OrganisationFormData = {
   address_line_postcode: string;
 };
 
+type TaskFormData = {
+  title: string;
+  description: string;
+};
+
 interface CreateOrganisationModalProps {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
@@ -32,6 +44,45 @@ export default function ViewOrganisationModal({
   setIsOpen,
   organisationData,
 }: CreateOrganisationModalProps) {
+  const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [taskFormData] = useState<TaskFormData>({
+    title: "",
+    description: "",
+  });
+  const { createOrganisationTask } = OrganisationActions();
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<TaskFormData>();
+
+  const handleTaskSubmit = async (data: TaskFormData) => {
+    try {
+      const response = await createOrganisationTask(
+        data.title,
+        data.description
+      ).res();
+
+      if (response.ok) {
+        toast.success(`Task "${taskFormData.title}" created!`, {
+          duration: 5000,
+        });
+        setIsTaskModalOpen(false);
+        mutate("api/listings/");
+      } else {
+        toast.error(`Failed to create task "${taskFormData.title}"`, {
+          duration: 5000,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(`Failed to create task "${taskFormData.title}"`, {
+        duration: 5000,
+      });
+    }
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -97,6 +148,68 @@ export default function ViewOrganisationModal({
             {organisationData.address_line_postcode}
           </p>
         </div>
+        <hr className="my-4 border-dark/20" />
+        <div className="text-center">
+          <Button
+            onClick={() => setIsTaskModalOpen(true)}
+            className="bg-accent text-white hover:bg-accent/90 transition-all"
+          >
+            Create Task
+          </Button>
+        </div>
+
+        <Dialog open={isTaskModalOpen} onOpenChange={setIsTaskModalOpen}>
+          <DialogContent className="sm:max-w-[425px] bg-white">
+            <DialogHeader>
+              <DialogTitle className="text-dark">
+                Create a New Task for {organisationData.name}
+              </DialogTitle>
+              <DialogDescription className="text-dark/70">
+                Add a task to contribute to this organisation.
+              </DialogDescription>
+            </DialogHeader>
+            <form
+              onSubmit={handleSubmit(handleTaskSubmit)}
+              className="space-y-4"
+            >
+              <FormField
+                id="taskTitle"
+                label="Title"
+                placeholder="e.g., Clean up the park"
+                register={register("title", {
+                  required: "Task title is required",
+                })}
+                required
+                error={errors.title?.message}
+              />
+
+              <div className="space-y-2">
+                <label
+                  htmlFor="taskDescription"
+                  className="text-dark font-medium"
+                >
+                  Description
+                </label>
+                <textarea
+                  id="taskDescription"
+                  {...register("description", {
+                    required: "Task description is required",
+                  })}
+                  name="description"
+                  placeholder="e.g., Clean up the local park"
+                  className="w-full px-3 py-2 border border-dark/20 focus:ring-accent focus:border-accent rounded-md h-24"
+                  required
+                />
+              </div>
+              <Button
+                type="submit"
+                className="w-full bg-accent text-white hover:bg-accent/90 transition-all"
+              >
+                Create Task
+              </Button>
+            </form>
+          </DialogContent>
+        </Dialog>
       </DialogContent>
     </Dialog>
   );

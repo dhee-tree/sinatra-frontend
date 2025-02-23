@@ -38,8 +38,29 @@ const createOrganisation = (
     );
 };
 
+const createOrganisationTask = (title: string, description: string) => {
+  const { getAccessToken } = LoginActions();
+  const token = getAccessToken();
+  if (!token) {
+    console.warn("No access token found in cookies");
+  }
+
+  return api
+    .headers({
+      Authorization: `Bearer ${token}`,
+    })
+    .post(
+      {
+        title,
+        description,
+      },
+      "/api/listings/add"
+    );
+};
+
 export const OrganisationActions = () => {
   return {
     createOrganisation,
+    createOrganisationTask,
   };
 };
